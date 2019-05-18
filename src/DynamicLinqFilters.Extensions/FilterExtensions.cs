@@ -8,6 +8,16 @@ namespace DynamicLinqFilters.Extensions
 {
     public static class LinqFilterExtensions
     {
+        public static IEnumerable<T> Filter<T>(this IEnumerable<T> query, List<Filter> filters)
+        {
+            return Filter(query.AsQueryable(), filters);
+        }
+
+        public static IEnumerable<T> Filter<T>(this IEnumerable<T> query, FilterGroupsHolder filterGroupsHolder)
+        {
+            return Filter(query.AsQueryable(), filterGroupsHolder);
+        }
+
         public static IQueryable<T> Filter<T>(this IQueryable<T> query, List<Filter> filters)
         {
             if (filters.Count == 0)
@@ -92,7 +102,6 @@ namespace DynamicLinqFilters.Extensions
             return exp;
         }
   
-
         private static bool IsNullable(Type type) => Nullable.GetUnderlyingType(type) != null;
 
         private static Expression BuildFilterValuesExpression(Expression left, List<FilterValue> filterValues, FilterJoinType filterValueJoinType = FilterJoinType.Or)

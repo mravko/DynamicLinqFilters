@@ -47,10 +47,6 @@ namespace DynamicLinqFilters.Extensions
                         MethodInfo method = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
                         return Expression.Call(left, method, right);
                     }
-                case "and":
-                    return Expression.And(left, right);
-                case "or":
-                    return Expression.OrElse(left, right);
                 default:
                     return Expression.Equal(left, right);
             }
