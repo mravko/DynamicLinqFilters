@@ -9,13 +9,13 @@ The current filter structure that can be sent to the extension methods has the f
 
 `FilterGroupHolder`
   - `FilterGroupHolder` acts as a placeholder for filter groups. 
-  - Can be ommited if filter groups are not used.
+  - *Can be ommited if filter groups are not used.*
   - Can contain one or more `FilterGroups`.
   - Can define how are the `FilterGroups` concatenated *(with `AND` or `OR`)*
   
 `FilterGroups`
   - Groups of filters. 
-  - Can be ommited if filter groups are not used.
+  - *Can be ommited if filter groups are not used.*
   - Can contain one or more `Filters`.
   - Can define how are the `Filters` concatenated *(with `AND` or `OR`)*
   
