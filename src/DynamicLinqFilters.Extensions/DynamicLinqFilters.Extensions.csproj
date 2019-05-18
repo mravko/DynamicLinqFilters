@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageId>DynamicLinqFilters.Extensions</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Marko Vuckovik (mravko)</Authors>
     <Title>
       DynamicLinqFilters
@@ -11,6 +11,8 @@
     <PackageDescription>
       Dynamic specification of filters that are translated to LINQ queries using Expressions trees. Can be executed on EFCore and In-Memory collections.
     </PackageDescription>
+    <RepositoryUrl>https://github.com/mravko/DynamicLinqFilters</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
