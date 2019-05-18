@@ -25,3 +25,72 @@ The current filter structure that can be sent to the extension methods has the f
  `FilterValues`
   - The filter values that we want to apply on given filter.
   - Defines the `operator` to be applied *(`Equals`, `StartsWith`, `Contains`, `GreatherThen` etc.)*
+  
+  
+  ## Examples
+
+Given the following model `Car` and `CarEngine`, on which we want to filter, we can construct the following filtering structure:
+
+```c#
+public class Car
+{
+    public string ModelName { get; set; }
+    public int NumberOfDoors { get; set; }
+    public CarEngine CarEngine { get; set; }
+}
+
+public class CarEngine
+{
+    public string Series { get; set; }
+    public int NumberOfCylinder { get; set; }
+}
+```
+
+```javascript
+// Returns one car. that is with model name Toyota
+
+{
+  "FilterGroups": [
+    {
+      "Filters": [
+        {
+          "PropertyName": "ModelName",
+          "Value": [
+            {
+              "Value": "Toyo",
+              "Operator": "StartsWith"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+```javascript
+// Returns two cars. Citroen and Toyota
+
+{
+  "FilterGroups": [
+    {
+      "Filters": [
+        {
+          "PropertyName": "ModelName",
+          "Value": [
+            {
+              "Value": "Toyo",
+              "Operator": "StartsWith"
+            },
+            {
+              "Value": "Cit",
+              "Operator": "StartsWith"
+            }
+          ],
+          "FilterValueJoinType": 1 // concatenate values with OR
+        }
+      ]
+    }
+  ]
+}
+```
