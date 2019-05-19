@@ -3,7 +3,7 @@ Dynamic specification of filters that are translated to LINQ queries using Expre
 
 The basic idea of this project is to provide simple filtering structure that can be easily applied on top of EfCore providers and In-Memory Linq collections.
 ## Install the latest release
-`dotnet add package DynamicLinqFilters.Extensions --version 1.0.2`
+`dotnet add package DynamicLinqFilters.Extensions`
 
 ## Structure description
 
