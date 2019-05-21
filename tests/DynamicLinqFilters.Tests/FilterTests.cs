@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using DynamicLinqFilters.Extensions;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace Tests
 {
@@ -19,14 +20,17 @@ namespace Tests
             {
                 ModelName = "Citroen",
                 NumberOfDoors = 5,
-                CarEngine = new CarEngine { NumberOfCylinder = 6, Series = "C1" }
+                CarEngine = new CarEngine { NumberOfCylinder = 6, Series = "C1" },
+                MadeOn = new DateTime(2010, 1, 1)
             });
 
             cars.Add(new Car
             {
                 ModelName = "Toyota",
                 NumberOfDoors = 4,
-                CarEngine = new CarEngine { NumberOfCylinder = 4, Series = "T1" }
+                CarEngine = new CarEngine { NumberOfCylinder = 4, Series = "T1" },
+                MadeOn = new DateTime(2013, 1, 1),
+                FirstServiceOn = new DateTime(2014, 1, 1)
             });
         }
 
@@ -36,8 +40,9 @@ namespace Tests
             cars.Clear();
         }
 
+        #region StringTests
         [Test]
-        public void FilterCars_SendsModelToyo_ReturnsToyota()
+        public void FilterCarsByString_SendsModelToyo_ReturnsToyota()
         {
             //arrange
             var filters = new List<Filter>
@@ -56,7 +61,7 @@ namespace Tests
                 }
             };
 
-            var json = JArray.FromObject(filters).ToString();
+
 
             //act
             var results = cars.Filter(filters);
@@ -68,7 +73,7 @@ namespace Tests
         }
 
         [Test]
-        public void FilterCars_SendsModelToyoAndCit_ReturnsToyotaAndCitr()
+        public void FilterCarsByString_SendsModelToyoAndCit_ReturnsToyotaAndCitr()
         {
             var filters = new List<Filter>
             {
@@ -92,7 +97,7 @@ namespace Tests
                 }
             };
 
-            var json = JArray.FromObject(filters).ToString();
+
 
             //act
             var results = cars.Filter(filters);
@@ -106,7 +111,7 @@ namespace Tests
         }
 
         [Test]
-        public void FilterCarsWithFilterGroupHolder_SendsModelToyo_ReturnsToyota()
+        public void FilterCarsByStringWithFilterGroupHolder_SendsModelToyo_ReturnsToyota()
         {
             //arrange
             var filterGroupHolder = new FilterGroupsHolder
@@ -146,7 +151,7 @@ namespace Tests
         }
 
         [Test]
-        public void FilterCarsWithFilterGroupHolder_SendsModelToyoAndCit_ReturnsToyotaAndCitr()
+        public void FilterCarsByStringWithFilterGroupHolder_SendsModelToyoAndCit_ReturnsToyotaAndCitr()
         {
             var filterGroupHolder = new FilterGroupsHolder
             {
@@ -191,18 +196,160 @@ namespace Tests
             Assert.AreEqual(results.Last().ModelName, "Toyota");
 
         }
-    }
+        #endregion
 
-    public class Car
-    {
-        public string ModelName { get; set; }
-        public int NumberOfDoors { get; set; }
-        public CarEngine CarEngine { get; set; }
-    }
+        #region DateTests
+        [Test]
+        public void FilterCarsByDate_SendsGreaterThan2011_ReturnsToyota()
+        {
+            //arrange
+            var filters = new List<Filter>
+            {
+                new Filter
+                {
+                    PropertyName = nameof(Car.MadeOn),
+                    Value = new List<FilterValue>
+                    {
+                        new FilterValue
+                        {
+                            Value = new DateTime(2011, 1, 1),
+                            Operator = ">="
+                        }
+                    }
+                }
+            };
 
-    public class CarEngine
-    {
-        public string Series { get; set; }
-        public int NumberOfCylinder { get; set; }
+
+
+            //act
+            var results = cars.Filter(filters);
+
+            //assert
+            Assert.NotNull(results);
+            Assert.AreEqual(1, results.Count());
+            Assert.AreEqual(results.First().ModelName, "Toyota");
+        }
+
+        [Test]
+        public void FilterCarsByNullableDate_AsDate_SendsGreaterThan2011_ReturnsToyota()
+        {
+            //arrange
+            var filters = new List<Filter>
+            {
+                new Filter
+                {
+                    PropertyName = nameof(Car.FirstServiceOn),
+                    Value = new List<FilterValue>
+                    {
+                        new FilterValue
+                        {
+                            Value = new DateTime(2011, 1, 1),
+                            Operator = ">="
+                        }
+                    }
+                }
+            };
+
+            //act
+            var results = cars.Filter(filters);
+
+            //assert
+            Assert.NotNull(results);
+            Assert.AreEqual(1, results.Count());
+            Assert.AreEqual(results.First().ModelName, "Toyota");
+        }
+
+        [Test]
+        public void FilterCarsByNullableDate_AsString_SendsGreaterThan2011_ReturnsToyota()
+        {
+            //arrange
+            var filters = new List<Filter>
+            {
+                new Filter
+                {
+                    PropertyName = nameof(Car.FirstServiceOn),
+                    Value = new List<FilterValue>
+                    {
+                        new FilterValue
+                        {
+                            Value = "2011-01-01",
+                            Operator = ">="
+                        }
+                    }
+                }
+            };
+
+            //act
+            var results = cars.Filter(filters);
+
+            //assert
+            Assert.NotNull(results);
+            Assert.AreEqual(1, results.Count());
+            Assert.AreEqual(results.First().ModelName, "Toyota");
+        }
+
+        [Test]
+        public void FilterCarsByDateAsString_SendsGreaterThan2011_ReturnsToyota()
+        {
+            //arrange
+            var filters = new List<Filter>
+            {
+                new Filter
+                {
+                    PropertyName = nameof(Car.MadeOn),
+                    Value = new List<FilterValue>
+                    {
+                        new FilterValue
+                        {
+                            Value = "2011-01-01",
+                            Operator = ">="
+                        }
+                    }
+                }
+            };
+
+
+
+            //act
+            var results = cars.Filter(filters);
+
+            //assert
+            Assert.NotNull(results);
+            Assert.AreEqual(1, results.Count());
+            Assert.AreEqual(results.First().ModelName, "Toyota");
+        }
+
+        [Test]
+        public void FilterCarsByDate_SendsGreaterThan2009_ReturnsToyotaAndCitroen()
+        {
+            //arrange
+            var filters = new List<Filter>
+            {
+                new Filter
+                {
+                    PropertyName = nameof(Car.MadeOn),
+                    Value = new List<FilterValue>
+                    {
+                        new FilterValue
+                        {
+                            Value = new DateTime(2009, 1, 1),
+                            Operator = ">="
+                        }
+                    }
+                }
+            };
+
+
+
+            //act
+            var results = cars.Filter(filters);
+
+            //assert
+            Assert.NotNull(results);
+            Assert.AreEqual(2, results.Count());
+            Assert.AreEqual(results.Last().ModelName, "Toyota");
+            Assert.AreEqual(results.First().ModelName, "Citroen");
+        }
+        #endregion
     }
 }

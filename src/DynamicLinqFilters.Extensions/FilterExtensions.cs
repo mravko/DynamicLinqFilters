@@ -115,7 +115,7 @@ namespace DynamicLinqFilters.Extensions
                 {
                     var underlyingType = Nullable.GetUnderlyingType(left.Type);
                     Type type = typeof(Nullable<>).MakeGenericType(underlyingType);
-                    right = Expression.Convert(Expression.Constant(filterValue.Value), type);
+                    right = Expression.Convert(Expression.Constant(Convert.ChangeType(filterValue.Value, underlyingType)), type);
                 }
                 else
                 {
