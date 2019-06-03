@@ -1,5 +1,6 @@
 ﻿using DynamicLinqFilters.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -101,8 +102,21 @@ namespace DynamicLinqFilters.Extensions
 
             return exp;
         }
-  
+
         private static bool IsNullable(Type type) => Nullable.GetUnderlyingType(type) != null;
+
+        private static IList ConvertList(Type newItemType, IList source)
+        {
+            var listType = typeof(List<>);
+            Type[] typeArgs = { newItemType };
+            var genericListType = listType.MakeGenericType(typeArgs);
+            var typedList = (IList)Activator.CreateInstance(genericListType);
+            foreach (var item in source)
+            {
+                typedList.Add(Convert.ChangeType(item, newItemType));
+            }
+            return typedList;
+        }
 
         private static Expression BuildFilterValuesExpression(Expression left, List<FilterValue> filterValues, FilterJoinType filterValueJoinType = FilterJoinType.Or)
         {
@@ -116,6 +130,11 @@ namespace DynamicLinqFilters.Extensions
                     var underlyingType = Nullable.GetUnderlyingType(left.Type);
                     Type type = typeof(Nullable<>).MakeGenericType(underlyingType);
                     right = Expression.Convert(Expression.Constant(Convert.ChangeType(filterValue.Value, underlyingType)), type);
+                }
+                else if (filterValue.Value.GetType().IsGenericType && filterValue.Value is IList)
+                {
+                    IList list = ConvertList(left.Type, filterValue.Value as IList);
+                    right = Expression.Constant(list);
                 }
                 else
                 {
@@ -136,6 +155,5 @@ namespace DynamicLinqFilters.Extensions
 
             return exp;
         }
-
     }
 }

@@ -1,4 +1,6 @@
 ﻿using DynamicLinqFilters.Models;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -32,6 +34,11 @@ namespace DynamicLinqFilters.Extensions
                     return Expression.LessThanOrEqual(left, right);
                 case ">=":
                     return Expression.GreaterThanOrEqual(left, right);
+                case "in":
+                    {
+                        MethodInfo method = right.Type.GetMethod("Contains", new[] { typeof(int) });
+                        return Expression.Call(right, method, left);
+                    }
                 case "contains":
                     {
                         MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
