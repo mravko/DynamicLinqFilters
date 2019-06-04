@@ -105,7 +105,7 @@ namespace DynamicLinqFilters.Extensions
 
         private static bool IsNullable(Type type) => Nullable.GetUnderlyingType(type) != null;
 
-        private static IList ConvertList(Type newItemType, IList source)
+        private static IList RemakeStaticListWithNewType(Type newItemType, IList source)
         {
             var listType = typeof(List<>);
             Type[] typeArgs = { newItemType };
@@ -113,7 +113,15 @@ namespace DynamicLinqFilters.Extensions
             var typedList = (IList)Activator.CreateInstance(genericListType);
             foreach (var item in source)
             {
-                typedList.Add(Convert.ChangeType(item, newItemType));
+                if (IsNullable(newItemType))
+                {
+                    var underlyingType = Nullable.GetUnderlyingType(newItemType);
+                    typedList.Add(Convert.ChangeType(item, underlyingType));
+                }
+                else
+                {
+                    typedList.Add(Convert.ChangeType(item, newItemType));
+                }
             }
             return typedList;
         }
@@ -125,21 +133,24 @@ namespace DynamicLinqFilters.Extensions
             foreach (var filterValue in filterValues)
             {
                 Expression right = null;
-                if (IsNullable(left.Type))
+                if (filterValue.Value.GetType().IsGenericType && filterValue.Value is IList)
                 {
-                    var underlyingType = Nullable.GetUnderlyingType(left.Type);
-                    Type type = typeof(Nullable<>).MakeGenericType(underlyingType);
-                    right = Expression.Convert(Expression.Constant(Convert.ChangeType(filterValue.Value, underlyingType)), type);
-                }
-                else if (filterValue.Value.GetType().IsGenericType && filterValue.Value is IList)
-                {
-                    IList list = ConvertList(left.Type, filterValue.Value as IList);
+                    IList list = RemakeStaticListWithNewType(left.Type, filterValue.Value as IList);
                     right = Expression.Constant(list);
                 }
                 else
                 {
-                    var value = Convert.ChangeType(filterValue.Value, left.Type);
-                    right = Expression.Constant(value);
+                    if (IsNullable(left.Type))
+                    {
+                        var underlyingType = Nullable.GetUnderlyingType(left.Type);
+                        Type type = typeof(Nullable<>).MakeGenericType(underlyingType);
+                        right = Expression.Convert(Expression.Constant(Convert.ChangeType(filterValue.Value, underlyingType)), type);
+                    }
+                    else
+                    {
+                        var value = Convert.ChangeType(filterValue.Value, left.Type);
+                        right = Expression.Constant(value);
+                    }
                 }
 
                 Expression concatenated = ExpressionHelpers.ConcatExpressionsWithOperator(left, right, filterValue.Operator);
